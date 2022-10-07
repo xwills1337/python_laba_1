@@ -6,6 +6,29 @@ def get_tabl(url, year, month):
     html_text = requests.get(url1, headers=headers).text
     soup = BeautifulSoup(html_text, 'html.parser')
     return soup.find_all('tr', align='center')
+def get_data(map, soup, year, month, id):
+    ads_2 = soup.find_all('td')
+    data = ads_2[0].text
+    data = data + "." + str(month) + "." + str(year)
+    map[id] = {}
+    map[id]["Дата"] = data
+    map[id]["День_температура"] = ads_2[1].text
+    map[id]["День_давление"] = ads_2[2].text
+
+    if len(map[id]["День_давление"]) == 1:
+        map[id]["День_давление"] = '-'
+    if ads_2[5].text == "Ш":
+        map[id]["День_ветер"] = "-"
+    else:
+        map[id]["День_ветер"] = ads_2[5].text
+
+    map[id]["Вечер_температура"] = ads_2[6].text
+    map[id]["Вечер_давление"] = ads_2[7].text
+    if ads_2[10].text == "Ш":
+        map[id]["Вечер_ветер"] = "-"
+    else:
+        map[id]["Вечер_ветер"] = ads_2[10].text
+    return map
 headers ={
     'Connection': 'keep-alive',
     'Cache-Control': 'max-age=0',
@@ -19,7 +42,7 @@ headers ={
 year = 2008
 map = {}
 id = 0
-year_2 = 2022
+year_2 = 2008
 month_2 = 12
 while year <= year_2:
     month = 1
@@ -28,28 +51,9 @@ while year <= year_2:
     while month <= month_2:
         ads = get_tabl("https://www.gismeteo.ru/diary/4618/", year, month)
         for i in range(len(ads)):
-            soup = ads[i]
-            ads_2=soup.find_all('td')
-            data = ads_2[0].text
-            data=data+"."+str(month)+"."+str(year)
-            map[id]={}
-            map[id]["Дата"]=data
-            map[id]["День_температура"]=ads_2[1].text
-            map[id]["День_давление"]=ads_2[2].text
-           #8722
-            if len(map[id]["День_давление"])==1:
-                map[id]["День_давление"]='-'
-            if ads_2[5].text == "Ш":
-                map[id]["День_ветер"]="-"
-            else:
-                map[id]["День_ветер"]=ads_2[5].text
-
-            map[id]["Вечер_температура"]=ads_2[6].text
-            map[id]["Вечер_давление"]=ads_2[7].text
-            if ads_2[10].text == "Ш":
-                map[id]["Вечер_ветер"]="-"
-            else:
-                map[id]["Вечер_ветер"]=ads_2[10].text
+            print(map)
+            map=get_data(map, ads[i], year, month, id)
+            print(map)
             id += 1
         month+=1
     year+=1

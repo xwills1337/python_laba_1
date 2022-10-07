@@ -14,14 +14,12 @@ def get_data(map, soup, year, month, id):
     map[id]["Дата"] = data
     map[id]["День_температура"] = ads_2[1].text
     map[id]["День_давление"] = ads_2[2].text
-
     if len(map[id]["День_давление"]) == 1:
         map[id]["День_давление"] = '-'
     if ads_2[5].text == "Ш":
         map[id]["День_ветер"] = "-"
     else:
         map[id]["День_ветер"] = ads_2[5].text
-
     map[id]["Вечер_температура"] = ads_2[6].text
     map[id]["Вечер_давление"] = ads_2[7].text
     if ads_2[10].text == "Ш":
@@ -29,6 +27,19 @@ def get_data(map, soup, year, month, id):
     else:
         map[id]["Вечер_ветер"] = ads_2[10].text
     return map
+def create_result(map, id):
+    result=[]
+    for i in range(id):
+        result.append([])
+        result[i].append(str(i + 1))
+        result[i].append(str(map[i]["Дата"]))
+        result[i].append(str(map[i]["День_температура"]))
+        result[i].append(str(map[i]["День_давление"]))
+        result[i].append(str(map[i]["День_ветер"]))
+        result[i].append(str(map[i]["Вечер_температура"]))
+        result[i].append(str(map[i]["Вечер_давление"]))
+        result[i].append(str(map[i]["Вечер_ветер"]))
+    return result
 headers ={
     'Connection': 'keep-alive',
     'Cache-Control': 'max-age=0',
@@ -42,7 +53,7 @@ headers ={
 year = 2008
 map = {}
 id = 0
-year_2 = 2008
+year_2 = 2022
 month_2 = 12
 while year <= year_2:
     month = 1
@@ -51,28 +62,16 @@ while year <= year_2:
     while month <= month_2:
         ads = get_tabl("https://www.gismeteo.ru/diary/4618/", year, month)
         for i in range(len(ads)):
-            print(map)
             map=get_data(map, ads[i], year, month, id)
-            print(map)
             id += 1
         month+=1
     year+=1
 
 map_2=[["День", "Дата", "День_температура", "День_давление",
        "День_ветер", "Вечер_температура", "Вечер_давление", "Вечер_ветер"]]
-result=[]
 with open("data.csv", "w", newline='') as file:
     writer=csv.writer(file, delimiter=';')
     writer.writerows(map_2)
-    for i in range(id):
-        result.append([])
-        result[i].append(str(i + 1))
-        result[i].append(str(map[i]["Дата"]))
-        result[i].append(str(map[i]["День_температура"]))
-        result[i].append(str(map[i]["День_давление"]))
-        result[i].append(str(map[i]["День_ветер"]))
-        result[i].append(str(map[i]["Вечер_температура"]))
-        result[i].append(str(map[i]["Вечер_давление"]))
-        result[i].append(str(map[i]["Вечер_ветер"]))
+    result=create_result(map, id)
     writer.writerows(result)
 
